@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by Yannic Rieger on 09.02.2018.
  * <p>
+ * Updates names for cached UUIDs.
  *
  * @author Yannic Rieger
  */
@@ -54,14 +55,14 @@ public class UuidCacheUpdater {
             List<Row> rows = Arrays.asList(result.getRows());
             List<List<Row>> batches = Lists.partition(rows, 400);
 
-
             batches.forEach(batch -> {
-
                 batch.forEach(row -> {
                     UUID uuid = UUID.fromString(row.getString("uuid"));
                     String name = latestName(uuid);
                     long update = System.currentTimeMillis();
                     if (name != null) {
+                        System.out.println("UUID: " + uuid);
+                        System.out.println("Name: " + name + "\n");
                         writeUpdate(uuid, name, update);
                     }
                 });
