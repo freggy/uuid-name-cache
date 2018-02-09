@@ -29,7 +29,7 @@ public class UuidCacheUpdater {
 
     private static final ScheduledExecutorService SCHEDULER = Executors.newScheduledThreadPool(1);
     private static final ExecutorService SERVICE = Executors.newScheduledThreadPool(10);
-    private static final String EXPIRED_ENTRIES_QUERY = "SELECT * FROM test WHERE last_login < date('now', '-5 days')" +
+    private static final String EXPIRED_ENTRIES_QUERY = "SELECT * FROM uuidchache WHERE last_login < date('now', '-5 days')" +
                                                         " OR last_update < date('now', '-2 days')";
     private static final JsonParser PARSER = new JsonParser();
     private static final String UPDATE_QUERY = "INSERT INTO uuidcache (uuid, display_name, last_login) " +
