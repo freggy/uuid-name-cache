@@ -8,6 +8,8 @@ import de.bergwerklabs.framework.commons.database.tablebuilder.Database;
 import de.bergwerklabs.framework.commons.database.tablebuilder.statement.Row;
 import de.bergwerklabs.framework.commons.database.tablebuilder.statement.Statement;
 import de.bergwerklabs.framework.commons.database.tablebuilder.statement.StatementResult;
+import de.bergwerklabs.uuidcache.server.cache.MojangUtil;
+
 import java.net.URI;
 import java.net.URLConnection;
 import java.sql.Timestamp;
@@ -50,7 +52,7 @@ public class UuidCacheUpdater {
             batches.forEach(batch -> {
                 batch.forEach(row -> {
                     UUID uuid = UUID.fromString(row.getString("uuid"));
-                    String name = latestName(uuid);
+                    String name = MojangUtil.nameForUuid(uuid);
                     long update = System.currentTimeMillis();
                     if (name != null) {
                         System.out.println("UUID: " + uuid);
@@ -83,48 +85,5 @@ public class UuidCacheUpdater {
             statement.executeUpdate(uuid.toString(), name, new Timestamp(update));
             statement.close();
         });
-    }
-
-
-    /**
-     * Retrieves the latest name of the user with the given {@link UUID}.
-     *
-     * @param uuid {@link UUID} of the user.
-     * @return latest name
-     */
-    private static String latestName(UUID uuid) {
-        String shortUuid = uuid.toString().replace("-", "");
-        System.out.println("Requesting name for " + uuid);
-
-        try {
-            URLConnection connection = retrieveConnection("https://api.mojang.com/user/profiles/" + shortUuid + "/names");
-            JsonArray array = PARSER.parse(new String(ByteStreams.toByteArray(connection.getInputStream()), "UTF-8"))
-                                    .getAsJsonArray();
-
-            String name = array.get(array.size() - 1).getAsJsonObject().get("name").getAsString();
-            System.out.println("Name of " + uuid + " is " + name);
-            return name;
-        }
-        catch (Exception e) {
-            System.out.println("Failed to retrieve names from " + uuid);
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * Creates an {@link URLConnection} object from a string containing a valid URL.
-     *
-     * @param url URL to create an {@link URLConnection} object from.
-     * @return    an {@link URLConnection}
-     */
-    private static URLConnection retrieveConnection(String url) throws Exception {
-        URLConnection connection = URI.create(url).toURL().openConnection();
-        connection.connect();
-        //Aborts connection attempt if it takes longer than 500ms (To prevent problems when the mojang WS is down)
-        connection.setConnectTimeout(500);
-        //If the connection was made, but the service takes more than 500ms to complete its answer, abort the request
-        connection.setReadTimeout(500);
-        return connection;
     }
 }
