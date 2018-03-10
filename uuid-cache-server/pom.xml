@@ -14,7 +14,7 @@
     <dependencies>
         <dependency>
             <groupId>de.bergwerklabs.atlantis</groupId>
-            <artifactId>atlantis-standalone-client</artifactId>
+            <artifactId>atlantis-client-standalone</artifactId>
             <version>0.1.0</version>
         </dependency>
         <dependency>

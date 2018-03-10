@@ -4,6 +4,7 @@ import com.google.common.io.ByteStreams;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import de.bergwerklabs.api.cache.pojo.PlayerNameToUuidMapping;
 
 import java.net.URI;
 import java.net.URLConnection;
@@ -49,12 +50,12 @@ public class MojangUtil {
         return null;
     }
 
-    public static UUID uuidForName(String name) {
+    public static PlayerNameToUuidMapping uuidForName(String name) {
         try {
             // Example data: {"id":"16f3c1358ca84d0fa1b5cae65ff92ecc","name":"notepass"}
             URLConnection connection = retrieveConnection("https://api.mojang.com/users/profiles/minecraft/" + name);
             JsonObject object = PARSER.parse(new String(ByteStreams.toByteArray(connection.getInputStream()), "UTF-8")).getAsJsonObject();
-            return toLongUuid(object.get("id").getAsString());
+            return new PlayerNameToUuidMapping(object.get("name").getAsString(), toLongUuid(object.get("id").getAsString()));
         }
         catch (Exception e) {
             e.printStackTrace();

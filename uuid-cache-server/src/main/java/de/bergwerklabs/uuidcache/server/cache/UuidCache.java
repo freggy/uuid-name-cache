@@ -2,6 +2,7 @@ package de.bergwerklabs.uuidcache.server.cache;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
+import de.bergwerklabs.api.cache.pojo.PlayerNameToUuidMapping;
 import de.bergwerklabs.framework.commons.database.tablebuilder.Database;
 
 import java.util.Optional;
@@ -18,12 +19,11 @@ import java.util.concurrent.ExecutionException;
  */
 public class UuidCache {
 
-    LoadingCache<UUID, String> uuidToName;
-    LoadingCache<String, UUID> nameToUuid;
+    LoadingCache<UUID, PlayerNameToUuidMapping> uuidToName;
+    LoadingCache<String, PlayerNameToUuidMapping> nameToUuid;
 
     /**
-     *
-     * @param database
+     * @param database {@link Database} containg the {@code uuidcache} table.
      */
     public UuidCache(Database database) {
         this.uuidToName = CacheBuilder.newBuilder().build(new UuidToNameCacheLoader(this, database));
@@ -31,20 +31,24 @@ public class UuidCache {
     }
 
     /**
+     * Resolves the {@link UUID} to the corresponding Minecraft player name.
      *
-     * @param uuid
-     * @return
+     * @param uuid {@link UUID} of the player.
+     * @return a {@link PlayerNameToUuidMapping} containing the {@link UUID} and name of the player.
+     *         <b>NOTE:</b> The name of the player will have the correct spelling.
      */
-    public Optional<String> resolveUuidToName(UUID uuid) {
+    public PlayerNameToUuidMapping resolveUuidToName(UUID uuid) {
         return this.getFromCache(uuid, this.uuidToName);
     }
 
     /**
+     * Resolves the name to a {@link UUID}.
      *
-     * @param name
-     * @return
+     * @param name name of the player.
+     * @return a {@link PlayerNameToUuidMapping} containing the {@link UUID} and name of the player.
+     *         <b>NOTE:</b> The name of the player will have the correct spelling.
      */
-    public Optional<UUID> resolveNameToUuid(String name) {
+    public PlayerNameToUuidMapping resolveNameToUuid(String name) {
         return this.getFromCache(name, this.nameToUuid);
     }
 
@@ -57,13 +61,13 @@ public class UuidCache {
      * @param <V> Type of value
      * @return {@link Optional} containing the loaded if present.
      */
-    private <K, V> Optional<V> getFromCache(K key, LoadingCache<K, V> cache) {
+    private <K, V> V getFromCache(K key, LoadingCache<K, V> cache) {
         try {
-            return Optional.of(cache.get(key));
+            return cache.get(key);
         }
         catch (ExecutionException e) {
             System.out.println("Cloud not load item from cache");
         }
-        return Optional.empty();
+        return null;
     }
 }

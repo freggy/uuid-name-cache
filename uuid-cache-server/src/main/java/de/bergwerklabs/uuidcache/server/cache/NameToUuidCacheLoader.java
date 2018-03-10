@@ -1,6 +1,8 @@
 package de.bergwerklabs.uuidcache.server.cache;
 
+import de.bergwerklabs.api.cache.pojo.PlayerNameToUuidMapping;
 import de.bergwerklabs.framework.commons.database.tablebuilder.Database;
+import de.bergwerklabs.framework.commons.database.tablebuilder.statement.Row;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -12,7 +14,7 @@ import java.util.UUID;
  *
  * @author Yannic Rieger
  */
-public class NameToUuidCacheLoader extends AbstractCacheLoader<String, UUID> {
+public class NameToUuidCacheLoader extends AbstractCacheLoader<String, PlayerNameToUuidMapping> {
 
     private final String QUERY = "SELECT * FROM uuidcache WHERE display_name LIKE ?";
 
@@ -21,18 +23,18 @@ public class NameToUuidCacheLoader extends AbstractCacheLoader<String, UUID> {
     }
 
     @Override
-    public UUID load(@NotNull String key) {
+    public PlayerNameToUuidMapping load(@NotNull String key) {
         return this.execute(result -> {
-            UUID uuid;
+            PlayerNameToUuidMapping mapping;
             if (result == null || result.isEmpty()) {
-                uuid = MojangUtil.uuidForName(key);
+                mapping = MojangUtil.uuidForName(key);
             }
-            else uuid = UUID.fromString(result.getRow(0).getString("uuid"));
+            else mapping = this.fromRow(result.getRow(0));
 
             // Add to other cache so if this value is not present it won't be computed twice,
             // which should increase performance.
-            if (uuid != null) this.cache.uuidToName.asMap().putIfAbsent(uuid, key);
-            return uuid;
+            if (mapping != null) this.cache.uuidToName.asMap().putIfAbsent(mapping.getUuid(), mapping);
+            return mapping;
         }, this.QUERY, key);
     }
 }
