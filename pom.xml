@@ -9,8 +9,8 @@
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
     <modules>
-        <module>uuid-cache-updater</module>
-        <module>uuid-cache-submiter</module>
+        <module>uuid-cache-server</module>
+        <module>uuid-cache-submitter</module>
     </modules>
     <dependencies>
         <dependency>

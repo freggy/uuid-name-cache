@@ -13,6 +13,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>de.bergwerklabs.atlantis</groupId>
+            <artifactId>atlantis-standalone-client</artifactId>
+            <version>0.1.0</version>
+        </dependency>
+        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>22.0</version>
@@ -49,7 +54,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>de.bergwerklabs.uuidcache.updater.UuidCacheUpdater</mainClass>
+                            <mainClass>de.bergwerklabs.uuidcache.server.UuidCacheUpdater</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

@@ -1,11 +1,10 @@
-package de.bergwerklabs.uuidcache.updater;
+package de.bergwerklabs.uuidcache.server;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import de.bergwerklabs.framework.commons.database.tablebuilder.Database;
-import de.bergwerklabs.framework.commons.database.tablebuilder.DatabaseType;
 import de.bergwerklabs.framework.commons.database.tablebuilder.statement.Row;
 import de.bergwerklabs.framework.commons.database.tablebuilder.statement.Statement;
 import de.bergwerklabs.framework.commons.database.tablebuilder.statement.StatementResult;
@@ -28,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 public class UuidCacheUpdater {
 
     private static final ScheduledExecutorService SCHEDULER = Executors.newScheduledThreadPool(1);
-    private static final ExecutorService SERVICE = Executors.newScheduledThreadPool(10);
+    private static final ExecutorService SERVICE = Executors.newFixedThreadPool(10);
     private static final String EXPIRED_ENTRIES_QUERY = "SELECT * FROM uuidchache WHERE last_login < date('now', '-5 days')" +
                                                         " OR last_update < date('now', '-2 days')";
     private static final JsonParser PARSER = new JsonParser();
@@ -37,14 +36,7 @@ public class UuidCacheUpdater {
 
     private static Database database = null;
 
-    public static void main(String[] args) {
-        System.out.println("Host is: " + args[0]);
-        System.out.println("Database is: " + args[1]);
-        System.out.println("Username is: " + args[2]);
-        System.out.println("Password is: " + args[3]);
-
-        database = new Database(DatabaseType.MySQL, args[0], args[1], args[2], args[3]);
-
+    public static void start(Database database) {
         System.out.println("Starting update interval...");
 
         SCHEDULER.scheduleAtFixedRate(() -> {
