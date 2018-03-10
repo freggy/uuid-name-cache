@@ -1,4 +1,4 @@
-package de.bergwerklabs.misc;
+package de.bergwerklabs.uuidcache.updater;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
