@@ -8,6 +8,7 @@ import java.util.UUID;
 /**
  * Created by Yannic Rieger on 10.03.2018.
  * <p>
+ * Resolves a name to a {@link UUID} of a Minecraft player. The result of this operation will be loaded into the cache.
  *
  * @author Yannic Rieger
  */

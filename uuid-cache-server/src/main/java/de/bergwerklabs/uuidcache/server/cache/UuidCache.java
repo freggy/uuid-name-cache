@@ -1,7 +1,6 @@
 package de.bergwerklabs.uuidcache.server.cache;
 
 import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import de.bergwerklabs.framework.commons.database.tablebuilder.Database;
 
@@ -12,6 +11,8 @@ import java.util.concurrent.ExecutionException;
 /**
  * Created by Yannic Rieger on 10.03.2018.
  * <p>
+ * Contains methods for resolving {@link UUID}s to names and vice versa. The results will be cached in
+ * {@link LoadingCache}s improved performance.
  *
  * @author Yannic Rieger
  */

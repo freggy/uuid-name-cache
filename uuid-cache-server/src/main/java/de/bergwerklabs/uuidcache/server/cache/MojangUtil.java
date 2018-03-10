@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 /**
  * Created by Yannic Rieger on 10.03.2018.
  * <p>
+ * Contains methods for resolving name to {@link UUID}s and vice versa.
  *
  * @author Yannic Rieger
  */

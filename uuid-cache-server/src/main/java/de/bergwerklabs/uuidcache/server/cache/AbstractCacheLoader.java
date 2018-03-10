@@ -10,6 +10,7 @@ import java.util.function.Function;
 /**
  * Created by Yannic Rieger on 10.03.2018.
  * <p>
+ * Base class for cache loaders.
  *
  * @author Yannic Rieger
  */
