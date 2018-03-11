@@ -2,7 +2,6 @@ package de.bergwerklabs.uuidcache.server.cache;
 
 import de.bergwerklabs.api.cache.pojo.PlayerNameToUuidMapping;
 import de.bergwerklabs.framework.commons.database.tablebuilder.Database;
-import de.bergwerklabs.framework.commons.database.tablebuilder.statement.Row;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -31,6 +30,7 @@ public class UuidToNameCacheLoader extends AbstractCacheLoader<UUID, PlayerNameT
                 mapping = new PlayerNameToUuidMapping();
                 mapping.setName(MojangUtil.nameForUuid(key));
                 mapping.setUuid(key);
+                this.writeToDatabaseAsync(mapping);
             }
             else mapping = this.fromRow(result.getRow(0));
 

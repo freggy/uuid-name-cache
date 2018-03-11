@@ -28,6 +28,7 @@ public class NameToUuidCacheLoader extends AbstractCacheLoader<String, PlayerNam
             PlayerNameToUuidMapping mapping;
             if (result == null || result.isEmpty()) {
                 mapping = MojangUtil.uuidForName(key);
+                this.writeToDatabaseAsync(mapping);
             }
             else mapping = this.fromRow(result.getRow(0));
 

@@ -27,6 +27,8 @@ public class Main {
     private static UuidCache cache;
 
     public static void main(String[] args) {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> cache.shutdown()));
+
         System.out.println("Host is: " + args[0]);
         System.out.println("Username is: " + args[1]);
         System.out.println("Password is: " + args[2]);

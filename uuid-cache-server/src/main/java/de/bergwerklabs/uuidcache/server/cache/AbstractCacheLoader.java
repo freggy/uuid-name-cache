@@ -8,6 +8,8 @@ import de.bergwerklabs.framework.commons.database.tablebuilder.statement.Stateme
 import de.bergwerklabs.framework.commons.database.tablebuilder.statement.StatementResult;
 
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Function;
 
 /**
@@ -21,10 +23,20 @@ abstract class AbstractCacheLoader<K, V> extends CacheLoader<K, V> {
 
     protected UuidCache cache;
     protected Database database;
+    private final ExecutorService EXECUTOR = Executors.newFixedThreadPool(5);
+
+    // In case an entry is already present just update display_name, to prevent duplicates
+    private final String INSERT = "INSERT INTO uuidcache (uuid, display_name) VALUES (?, ?) ON " +
+                                  "DUPLICATE KEY UPDATE display_name = ?";
+
 
      AbstractCacheLoader(UuidCache cache, Database database) {
         this.cache = cache;
         this.database = database;
+     }
+
+     public void shutdown() {
+         this.EXECUTOR.shutdown();
      }
 
      protected <T> T execute(Function<StatementResult, T> consumer, String query, String param) {
@@ -45,5 +57,16 @@ abstract class AbstractCacheLoader<K, V> extends CacheLoader<K, V> {
          mapping.setUuid(uuid);
          mapping.setName(name);
          return mapping;
+     }
+
+     protected void writeToDatabaseAsync(PlayerNameToUuidMapping mapping) {
+         this.EXECUTOR.submit(() -> {
+             try (Statement statement = this.database.prepareStatement(this.INSERT)) {
+                 statement.executeUpdate(mapping.getUuid().toString(), mapping.getName());
+             }
+             catch (Exception ex) {
+                ex.printStackTrace();
+             }
+         });
      }
 }

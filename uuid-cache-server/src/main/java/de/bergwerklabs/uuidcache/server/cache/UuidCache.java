@@ -22,12 +22,23 @@ public class UuidCache {
     LoadingCache<UUID, PlayerNameToUuidMapping> uuidToName;
     LoadingCache<String, PlayerNameToUuidMapping> nameToUuid;
 
+    private AbstractCacheLoader<UUID, PlayerNameToUuidMapping> uuidNameLoader;
+    private AbstractCacheLoader<String, PlayerNameToUuidMapping> nameUuidLoader;
+
     /**
      * @param database {@link Database} containg the {@code uuidcache} table.
      */
     public UuidCache(Database database) {
-        this.uuidToName = CacheBuilder.newBuilder().build(new UuidToNameCacheLoader(this, database));
-        this.nameToUuid = CacheBuilder.newBuilder().build(new NameToUuidCacheLoader(this, database));
+        this.uuidNameLoader = new UuidToNameCacheLoader(this, database);
+        this.nameUuidLoader = new NameToUuidCacheLoader(this, database);
+
+        this.uuidToName = CacheBuilder.newBuilder().build(this.uuidNameLoader);
+        this.nameToUuid = CacheBuilder.newBuilder().build(this.nameUuidLoader);
+    }
+
+    public void shutdown() {
+        this.uuidNameLoader.shutdown();
+        this.nameUuidLoader.shutdown();
     }
 
     /**
