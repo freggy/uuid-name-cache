@@ -47,6 +47,9 @@ public class UuidCacheUpdater {
             statement.close();
 
             List<Row> rows = Arrays.asList(result.getRows());
+
+            // partition it at 400 so there are 200 api calls left.
+            // Otherwise the UUID cache could exceed the rate limit.
             List<List<Row>> batches = Lists.partition(rows, 400);
 
             batches.forEach(batch -> {
@@ -69,7 +72,7 @@ public class UuidCacheUpdater {
                 }
             });
 
-        }, 0, 1, TimeUnit.DAYS);
+        }, 1, 1, TimeUnit.DAYS);
     }
 
     /**
