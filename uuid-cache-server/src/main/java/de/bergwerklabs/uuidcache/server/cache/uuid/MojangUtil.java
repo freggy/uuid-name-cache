@@ -1,4 +1,4 @@
-package de.bergwerklabs.uuidcache.server.cache;
+package de.bergwerklabs.uuidcache.server.cache.uuid;
 
 import com.google.common.io.ByteStreams;
 import com.google.gson.JsonArray;

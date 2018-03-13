@@ -2,3 +2,5 @@ name: UuidCacheSubmitter
 author: freggy
 version: 1.0
 main: de.bergwerklabs.uuidcache.submitter.Main
+depend: [LuckPerms]
+softdepend: [LuckPerms]

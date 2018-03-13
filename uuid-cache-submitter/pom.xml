@@ -30,6 +30,11 @@
             <artifactId>bungeecord-event</artifactId>
             <version>1.12-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>de.bergwerklabs.atlantis</groupId>
+            <artifactId>atlantis-client-base</artifactId>
+            <version>0.1.0</version>
+        </dependency>
     </dependencies>
 
     <build>

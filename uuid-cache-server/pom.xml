@@ -9,7 +9,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>uuid-cache-updater</artifactId>
+    <artifactId>uuid-cache-server</artifactId>
 
     <dependencies>
         <dependency>
@@ -54,7 +54,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>de.bergwerklabs.uuidcache.server.UuidCacheUpdater</mainClass>
+                            <mainClass>de.bergwerklabs.uuidcache.server.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

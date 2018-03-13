@@ -1,4 +1,4 @@
-package de.bergwerklabs.uuidcache.server.cache;
+package de.bergwerklabs.uuidcache.server.cache.uuid;
 
 import com.google.common.cache.CacheLoader;
 import de.bergwerklabs.api.cache.pojo.PlayerNameToUuidMapping;
@@ -62,7 +62,7 @@ abstract class AbstractCacheLoader<K, V> extends CacheLoader<K, V> {
      protected void writeToDatabaseAsync(PlayerNameToUuidMapping mapping) {
          this.EXECUTOR.submit(() -> {
              try (Statement statement = this.database.prepareStatement(this.INSERT)) {
-                 statement.executeUpdate(mapping.getUuid().toString(), mapping.getName());
+                 statement.executeUpdate(mapping.getUuid().toString(), mapping.getName(), mapping.getName());
              }
              catch (Exception ex) {
                 ex.printStackTrace();
