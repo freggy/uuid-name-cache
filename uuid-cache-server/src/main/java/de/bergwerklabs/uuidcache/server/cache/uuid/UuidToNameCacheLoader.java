@@ -15,7 +15,7 @@ import java.util.UUID;
  *
  * @author Yannic Rieger
  */
-public class UuidToNameCacheLoader extends AbstractCacheLoader<UUID, Optional<PlayerNameToUuidMapping>> {
+public class UuidToNameCacheLoader extends AbstractCacheLoader<UUID, PlayerNameToUuidMapping> {
 
     private final String QUERY = "SELECT * FROM uuidcache WHERE uuid = ?";
     private final AtlantisLogger LOGGER = AtlantisLogger.getLogger(getClass());
@@ -25,28 +25,26 @@ public class UuidToNameCacheLoader extends AbstractCacheLoader<UUID, Optional<Pl
     }
 
     @Override
-    public Optional<PlayerNameToUuidMapping> load(@NotNull UUID key) {
+    public PlayerNameToUuidMapping load(@NotNull UUID key) {
         this.LOGGER.info("Requesting Name of " + key.toString());
         return this.execute(result -> {
-            Optional<PlayerNameToUuidMapping> mapping = Optional.empty();
+            PlayerNameToUuidMapping mapping = new PlayerNameToUuidMapping(null, key);
             if (result == null || result.isEmpty()) {
                 Optional<String> optional = MojangUtil.nameForUuid(key);
                 if (optional.isPresent()) {
                     String name = optional.get();
                     this.LOGGER.info("Name of " + key.toString() + " is " + name);
-                    PlayerNameToUuidMapping real = new PlayerNameToUuidMapping();
-                    real.setName(name);
-                    real.setUuid(key);
-                    mapping = Optional.of(real);
-                    this.writeToDatabaseAsync(real);
+                    mapping.setName(name);
+                    mapping.setUuid(key);
+                    this.writeToDatabaseAsync(mapping);
                 }
                 else this.LOGGER.warn("No name found for " + key.toString());
             }
-            else mapping = Optional.of(this.fromRow(result.getRow(0)));
+            else mapping = this.fromRow(result.getRow(0));
 
             // Add to other cache so if this value is not present it won't be computed twice,
             // which should increase performance.
-            mapping.ifPresent(val -> this.cache.nameToUuid.asMap().putIfAbsent(val.getName(), Optional.of(val)));
+            if (mapping.getName() != null) this.cache.nameToUuid.asMap().putIfAbsent(mapping.getName(), mapping);
             return mapping;
 
         }, this.QUERY, key.toString());

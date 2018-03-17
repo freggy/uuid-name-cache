@@ -61,13 +61,13 @@ public class Main {
         }
 
         SERVICE.addListener(NameToUuidRequestPacket.class, packet -> {
-            Optional<PlayerNameToUuidMapping> mapping = cache.resolveNameToUuid(packet.getName());
+            PlayerNameToUuidMapping mapping = cache.resolveNameToUuid(packet.getName());
             SERVICE.sendResponse(new NameToUuidResponsePacket(mapping), packet);
         });
 
 
         SERVICE.addListener(UuidToNameRequestPacket.class, packet -> {
-            Optional<PlayerNameToUuidMapping> mapping = cache.resolveUuidToName(packet.getUuid());
+            PlayerNameToUuidMapping mapping = cache.resolveUuidToName(packet.getUuid());
             SERVICE.sendResponse(new UuidToNameResponsePacket(mapping), packet);
         });
 

@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Yannic Rieger on 10.03.2018.
@@ -20,12 +21,12 @@ import java.util.UUID;
  */
 public class UuidCache {
 
-    LoadingCache<UUID, Optional<PlayerNameToUuidMapping>> uuidToName;
-    LoadingCache<String, Optional<PlayerNameToUuidMapping>> nameToUuid;
+    LoadingCache<UUID, PlayerNameToUuidMapping> uuidToName;
+    LoadingCache<String, PlayerNameToUuidMapping> nameToUuid;
 
     private final AtlantisLogger LOGGER = AtlantisLogger.getLogger(getClass());
-    private AbstractCacheLoader<UUID, Optional<PlayerNameToUuidMapping>> uuidNameLoader;
-    private AbstractCacheLoader<String, Optional<PlayerNameToUuidMapping>> nameUuidLoader;
+    private AbstractCacheLoader<UUID, PlayerNameToUuidMapping> uuidNameLoader;
+    private AbstractCacheLoader<String, PlayerNameToUuidMapping> nameUuidLoader;
 
     /**
      * @param database {@link Database} containg the {@code uuidcache} table.
@@ -34,8 +35,8 @@ public class UuidCache {
         this.uuidNameLoader = new UuidToNameCacheLoader(this, database);
         this.nameUuidLoader = new NameToUuidCacheLoader(this, database);
 
-        this.uuidToName = CacheBuilder.newBuilder().build(this.uuidNameLoader);
-        this.nameToUuid = CacheBuilder.newBuilder().build(this.nameUuidLoader);
+        this.uuidToName = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).build(this.uuidNameLoader);
+        this.nameToUuid = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).build(this.nameUuidLoader);
     }
 
     public void shutdown() {
@@ -44,8 +45,8 @@ public class UuidCache {
     }
 
     public void addEntryIfNotPresent(@NotNull PlayerNameToUuidMapping mapping) {
-        this.uuidToName.asMap().putIfAbsent(mapping.getUuid(), Optional.of(mapping));
-        this.nameToUuid.asMap().putIfAbsent(mapping.getName(), Optional.of(mapping));
+        this.uuidToName.asMap().putIfAbsent(mapping.getUuid(), mapping);
+        this.nameToUuid.asMap().putIfAbsent(mapping.getName(), mapping);
     }
 
 
@@ -56,7 +57,7 @@ public class UuidCache {
      * @return a {@link PlayerNameToUuidMapping} containing the {@link UUID} and name of the player.
      *         <b>NOTE:</b> The name of the player will have the correct spelling.
      */
-    public Optional<PlayerNameToUuidMapping> resolveUuidToName(@NotNull UUID uuid) {
+    public PlayerNameToUuidMapping resolveUuidToName(@NotNull UUID uuid) {
         return this.getFromCache(uuid, this.uuidToName);
     }
 
@@ -67,7 +68,7 @@ public class UuidCache {
      * @return a {@link PlayerNameToUuidMapping} containing the {@link UUID} and name of the player.
      *         <b>NOTE:</b> The name of the player will have the correct spelling.
      */
-    public Optional<PlayerNameToUuidMapping> resolveNameToUuid(@NotNull String name) {
+    public PlayerNameToUuidMapping resolveNameToUuid(@NotNull String name) {
         return this.getFromCache(name, this.nameToUuid);
     }
 
@@ -80,13 +81,13 @@ public class UuidCache {
      * @param <V> Type of value
      * @return {@link Optional} containing the loaded if present.
      */
-    private <K, V> Optional<V> getFromCache(@NotNull K key, @NotNull LoadingCache<K, Optional<V>> cache) {
+    private <K, V> V getFromCache(@NotNull K key, @NotNull LoadingCache<K, V> cache) {
         try {
             return cache.get(key);
         }
         catch (Exception e) {
             this.LOGGER.error("Could not retrieve value from cache for key " + key.toString(), e);
         }
-        return Optional.empty();
+        return null;
     }
 }
