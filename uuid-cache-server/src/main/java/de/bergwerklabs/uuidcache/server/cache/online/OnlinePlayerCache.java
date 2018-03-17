@@ -20,6 +20,10 @@ public class OnlinePlayerCache {
         this.onlinePlayerCache.put(entry.getMapping().getUuid(), entry);
     }
 
+    public void removeEntry(UUID uuid) {
+        this.onlinePlayerCache.asMap().remove(uuid);
+    }
+
     public PlayerEntry getEntry(UUID uuid) {
         return this.onlinePlayerCache.getIfPresent(uuid);
     }

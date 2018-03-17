@@ -8,6 +8,7 @@ import de.bergwerklabs.api.cache.pojo.PlayerNameToUuidMapping;
 
 import java.net.URI;
 import java.net.URLConnection;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,7 +31,7 @@ public class MojangUtil {
      * @param uuid {@link UUID} of the user.
      * @return latest name
      */
-    public static String nameForUuid(UUID uuid) {
+    public static Optional<String> nameForUuid(UUID uuid) {
         String shortUuid = uuid.toString().replace("-", "");
         System.out.println("Requesting name for " + uuid);
 
@@ -41,26 +42,29 @@ public class MojangUtil {
 
             String name = array.get(array.size() - 1).getAsJsonObject().get("name").getAsString();
             System.out.println("Name of " + uuid + " is " + name);
-            return name;
+            return Optional.of(name);
         }
         catch (Exception e) {
             System.out.println("Failed to retrieve names from " + uuid);
             e.printStackTrace();
         }
-        return null;
+        return Optional.empty();
     }
 
-    public static PlayerNameToUuidMapping uuidForName(String name) {
+    public static Optional<PlayerNameToUuidMapping> uuidForName(String name) {
         try {
             // Example data: {"id":"16f3c1358ca84d0fa1b5cae65ff92ecc","name":"notepass"}
             URLConnection connection = retrieveConnection("https://api.mojang.com/users/profiles/minecraft/" + name);
             JsonObject object = PARSER.parse(new String(ByteStreams.toByteArray(connection.getInputStream()), "UTF-8")).getAsJsonObject();
-            return new PlayerNameToUuidMapping(object.get("name").getAsString(), toLongUuid(object.get("id").getAsString()));
+
+            if (object.has("error")) return Optional.empty();
+
+            return Optional.of(new PlayerNameToUuidMapping(object.get("name").getAsString(), toLongUuid(object.get("id").getAsString())));
         }
         catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return Optional.empty();
     }
 
     /**
