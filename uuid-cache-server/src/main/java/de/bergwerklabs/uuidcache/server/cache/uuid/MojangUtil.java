@@ -2,6 +2,7 @@ package de.bergwerklabs.uuidcache.server.cache.uuid;
 
 import com.google.common.io.ByteStreams;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import de.bergwerklabs.api.cache.pojo.PlayerNameToUuidMapping;
@@ -55,10 +56,9 @@ public class MojangUtil {
         try {
             // Example data: {"id":"16f3c1358ca84d0fa1b5cae65ff92ecc","name":"notepass"}
             URLConnection connection = retrieveConnection("https://api.mojang.com/users/profiles/minecraft/" + name);
-            JsonObject object = PARSER.parse(new String(ByteStreams.toByteArray(connection.getInputStream()), "UTF-8")).getAsJsonObject();
-
-            if (object.has("error")) return Optional.empty();
-
+            JsonElement element = PARSER.parse(new String(ByteStreams.toByteArray(connection.getInputStream()), "UTF-8"));
+            if (element.isJsonNull()) return Optional.empty();
+            JsonObject object = element.getAsJsonObject();
             return Optional.of(new PlayerNameToUuidMapping(object.get("name").getAsString(), toLongUuid(object.get("id").getAsString())));
         }
         catch (Exception e) {

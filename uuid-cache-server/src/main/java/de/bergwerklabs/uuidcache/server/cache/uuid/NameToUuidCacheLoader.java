@@ -28,13 +28,13 @@ public class NameToUuidCacheLoader extends AbstractCacheLoader<String, PlayerNam
     public PlayerNameToUuidMapping load(@NotNull String key) {
         this.LOGGER.info("Loading UUID for name " + key);
         return this.execute(result -> {
-            PlayerNameToUuidMapping mapping = null;
+            PlayerNameToUuidMapping mapping = new PlayerNameToUuidMapping(key, null);
             if (result == null || result.isEmpty()) {
                 Optional<PlayerNameToUuidMapping> optional = MojangUtil.uuidForName(key);
                 if (optional.isPresent()) {
-                    PlayerNameToUuidMapping real = optional.get();
-                    this.LOGGER.info("UUID of " + key + " is " + real.getUuid().toString());
-                    this.writeToDatabaseAsync(real);
+                    mapping = optional.get();
+                    this.LOGGER.info("UUID of " + key + " is " + mapping.getUuid().toString());
+                    this.writeToDatabaseAsync(mapping);
                 }
                 else {
                     this.LOGGER.warn("Name " + key + " is invalid.");
@@ -45,7 +45,7 @@ public class NameToUuidCacheLoader extends AbstractCacheLoader<String, PlayerNam
 
             // Add to other cache so if this value is not present it won't be computed twice,
             // which should increase performance.
-            this.cache.uuidToName.asMap().putIfAbsent(mapping.getUuid(), mapping);
+            if (mapping.getUuid() != null) this.cache.uuidToName.asMap().putIfAbsent(mapping.getUuid(), mapping);
             return mapping;
         }, this.QUERY, key);
     }

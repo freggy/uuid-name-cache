@@ -5,6 +5,7 @@ import de.bergwerklabs.api.cache.pojo.PlayerNameToUuidMapping;
 import de.bergwerklabs.api.cache.pojo.players.online.ConnectedServer;
 import de.bergwerklabs.api.cache.pojo.players.online.PlayerEntry;
 import de.bergwerklabs.atlantis.api.corepackages.cache.online.PlayerOnlineCacheUpdatePacket;
+import de.bergwerklabs.atlantis.api.corepackages.cache.online.RemoveOnlinePlayerCacheEntry;
 import de.bergwerklabs.atlantis.client.base.util.AtlantisPackageService;
 import de.bergwerklabs.framework.commons.database.tablebuilder.Database;
 import de.bergwerklabs.framework.commons.database.tablebuilder.DatabaseType;
@@ -15,6 +16,7 @@ import me.lucko.luckperms.LuckPerms;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
+import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.event.ServerSwitchEvent;
@@ -41,7 +43,6 @@ public class Main extends Plugin implements Listener {
 
     private Database database;
     private PermissionBridge bridge;
-
 
     @Override
     public void onEnable() {
@@ -89,6 +90,11 @@ public class Main extends Plugin implements Listener {
     }
 
     @EventHandler
+    public void onPlayerDisconnect(PlayerDisconnectEvent event) {
+        SERVICE.sendPackage(new RemoveOnlinePlayerCacheEntry(event.getPlayer().getUniqueId()));
+    }
+
+    @EventHandler
     public void onServerConnected(ServerConnectedEvent event) {
         ProxiedPlayer player = event.getPlayer();
         ServerInfo server = event.getServer().getInfo();
@@ -98,6 +104,8 @@ public class Main extends Plugin implements Listener {
 
         String id = components[0];
         String service = String.join("_", arr);
+
+        System.out.println(server.getName());
 
         SERVICE.sendPackage(
                 new PlayerOnlineCacheUpdatePacket(
