@@ -96,5 +96,6 @@ public class Main {
               new OnlinePlayerCacheResponsePacket(ONLINE_PLAYER_CACHE.getEntry(packet.getUuid())),
               packet);
         });
+    while (true) {}
   }
 }

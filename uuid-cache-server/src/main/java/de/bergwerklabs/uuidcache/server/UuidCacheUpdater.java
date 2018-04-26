@@ -29,46 +29,6 @@ public class UuidCacheUpdater {
   public static void start(Database database) {
     System.out.println("Starting update interval...");
     db = database;
-
-    /*
-    SCHEDULER.scheduleAtFixedRate(() -> {
-        try {
-            Statement statement = db.prepareStatement(EXPIRED_ENTRIES_QUERY);
-            StatementResult result = statement.execute();
-            statement.close();
-
-            List<Row> rows = Arrays.asList(result.getRows());
-            System.out.println("Entries to update: " + rows.size());
-
-            // partition it at 400 so there are 200 api calls left.
-            // Otherwise the UUID cache could exceed the rate limit.
-            List<List<Row>> batches = Lists.partition(rows, 100);
-
-            batches.forEach(batch -> {
-                batch.forEach(row -> {
-                    UUID uuid = UUID.fromString(row.getString("uuid"));
-                    String name = MojangUtil.nameForUuid(uuid);
-                    long update = System.currentTimeMillis();
-                    if (name != null) {
-                        System.out.println("UUID: " + uuid);
-                        System.out.println("Name: " + name + "\n");
-                        writeUpdate(uuid, name, update);
-                    }
-                });
-
-                try {
-                    System.out.println("Waiting 10 Minutes until further execution to not exceed the rate limit");
-                    Thread.sleep(60000 * 4); // Wait 10 minutes so rate limit of Mojang API is not exceeded.
-                }
-                catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            });
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }, 1, 1, TimeUnit.DAYS); */
   }
 
   /**
